@@ -58,9 +58,11 @@ if __name__ == "__main__":
     file_contents = comments_re.sub("", file_contents)
 
     print("Detecting bibitems..... done");
-    bibitems_re = re.compile("\\\\bibitem\\[.*?\\]\\{(.*?)\\}")
+    bibitems_re = re.compile("\\\\bibitem(?:\\[.*?\\])?\\{(.*?)\\}")
     bibitems = collections.Counter(bibitems_re.findall(file_contents))
     bibitems = collections.OrderedDict(sorted(bibitems.items()))
+
+    print(bibitems)
 
     print("Detecting citations..... done");
     citations_re = re.compile("\\\\cite\\{(.*?)\\}")
