@@ -34,13 +34,11 @@ if __name__ == "__main__":
     def append_to_output(msg):
         global output
         output = output + "\n    " + msg
-        pass
 
     def append_problem_to_output(msg):
         global output, problems_counter
         problems_counter += 1
         output = output + "\n[!] " + msg
-        pass
 
 
     if len(sys.argv) < 2:
