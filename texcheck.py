@@ -62,8 +62,6 @@ if __name__ == "__main__":
     bibitems = collections.Counter(bibitems_re.findall(file_contents))
     bibitems = collections.OrderedDict(sorted(bibitems.items()))
 
-    print(bibitems)
-
     print("Detecting citations..... done");
     citations_re = re.compile("\\\\cite\\{(.*?)\\}")
     citations = collections.Counter(citations_re.findall(file_contents))
@@ -149,7 +147,6 @@ if __name__ == "__main__":
     undefined_namerefs = [name for name in namerefs.keys() if not name in labels]    # check for labels that are nameref-referenced, but never defined
     for label in undefined_namerefs:
         append_problem_to_output("label '" + label + "' is referenced via nameref but never defined")
-
 
 
 
