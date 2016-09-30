@@ -92,12 +92,10 @@ if __name__ == "__main__":
         if count > 1:
             append_problem_to_output("bibitem '" + name + "' is defined " + str(count) + " times")
 
-        citation_info = {c_name: c_count for c_name, c_count in citations.items() if c_name == name}
-
-        if not citation_info:
+        if not name in citations:
             append_problem_to_output("bibitem '" + name + "' is never cited")
         else:
-            append_to_output("bibitem '" + name + "': " + str(citation_info[name]) + " citations")
+            append_to_output("bibitem '" + name + "': " + str(citations[name]) + " citations")
 
     undefined_bibitems = [name for name in citations.keys() if not name in bibitems]    # check for bibitems that are referenced, but never defined
     for bibitem in undefined_bibitems:
@@ -110,25 +108,25 @@ if __name__ == "__main__":
         if count > 1:
             append_problem_to_output("label '" + name + "' is defined " + str(count) + " times")
 
-        ref_info = {r_name: r_count for r_name, r_count in refs.items() if r_name == name}
-        pageref_info = {r_name: r_count for r_name, r_count in pagerefs.items() if r_name == name}
-        nameref_info = {r_name: r_count for r_name, r_count in namerefs.items() if r_name == name}
+        name_in_refs = name in refs;
+        name_in_pagerefs = name in pagerefs;
+        name_in_namerefs = name in namerefs;
 
-        if not ref_info and not pageref_info and not nameref_info:
+        if not name_in_refs and not name_in_pagerefs and not name_in_namerefs:
             append_problem_to_output("label '" + name + "' is never referenced")
         else:
-            if ref_info:
-                ref_count = ref_info[name]
+            if name_in_refs:
+                ref_count = refs[name]
             else:
                 ref_count = 0
 
-            if pageref_info:
-                pageref_count = pageref_info[name]
+            if name_in_pagerefs:
+                pageref_count = pagerefs[name]
             else:
                 pageref_count = 0
 
-            if nameref_info:
-                nameref_count = nameref_info[name]
+            if name_in_namerefs:
+                nameref_count = namerefs[name]
             else:
                 nameref_count = 0
 
