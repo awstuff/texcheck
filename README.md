@@ -2,7 +2,7 @@
 
 
 ## Introduction
-A Python script that checks a LaTeX document for semantic errors. Lists duplicate and never referenced labels and bibliography items and undefined references.
+A Python script that checks a LaTeX document for semantic errors. Lists duplicate and never referenced labels (including listings) and bibliography items and undefined references.
 
 Requires Python 3.
 

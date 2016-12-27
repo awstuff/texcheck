@@ -55,32 +55,37 @@ if __name__ == "__main__":
     comments_re = re.compile("%(.*)")   # remove comments
     file_contents = comments_re.sub("", file_contents)
 
-    print("Detecting bibitems..... done");
+    print("Detecting bibitems..... done")
     bibitems_re = re.compile("\\\\bibitem(?:\\[.*?\\])?\\{(.*?)\\}")
     bibitems = collections.Counter(bibitems_re.findall(file_contents))
     bibitems = collections.OrderedDict(sorted(bibitems.items()))
 
-    print("Detecting citations..... done");
+    print("Detecting citations..... done")
     citations_re = re.compile("\\\\cite\\{(.*?)\\}")
     citations = collections.Counter(citations_re.findall(file_contents))
     citations = collections.OrderedDict(sorted(citations.items()))
 
-    print("Detecting labels..... done");
+    print("Detecting labels..... done")
     labels_re = re.compile("\\\\label\\{(.*?)\\}")
     labels = collections.Counter(labels_re.findall(file_contents))
     labels = collections.OrderedDict(sorted(labels.items()))
 
-    print("Detecting refs..... done");
+    print("Detecting listing labels..... done")
+    listings_re = re.compile("\\\\begin\\{lstlisting\\}\\[language=[a-zA-Z]*,\\s*caption=\\{.*\\},\\s*label=(.*?)\\]")
+    listings = collections.Counter(listings_re.findall(file_contents))
+    listings = collections.OrderedDict(sorted(listings.items()))
+
+    print("Detecting refs..... done")
     refs_re = re.compile("\\\\ref\\{(.*?)\\}")
     refs = collections.Counter(refs_re.findall(file_contents))
     refs = collections.OrderedDict(sorted(refs.items()))
 
-    print("Detecting pagerefs..... done");
+    print("Detecting pagerefs..... done")
     pagerefs_re = re.compile("\\\\pageref\\{(.*?)\\}")
     pagerefs = collections.Counter(pagerefs_re.findall(file_contents))
     pagerefs = collections.OrderedDict(sorted(pagerefs.items()))
 
-    print("Detecting namerefs..... done");
+    print("Detecting namerefs..... done")
     namerefs_re = re.compile("\\\\nameref\\{(.*?)\\}")
     namerefs = collections.Counter(namerefs_re.findall(file_contents))
     namerefs = collections.OrderedDict(sorted(namerefs.items()))
@@ -104,47 +109,53 @@ if __name__ == "__main__":
 
 
 
-    for name, count in labels.items():    # check for duplicate and never referenced labels
-        if count > 1:
-            append_problem_to_output("label '" + name + "' is defined " + str(count) + " times")
+    def label_check(name_for_print, collection):
+        for name, count in collection.items():    # check for duplicate and never referenced labels
+            if count > 1:
+                append_problem_to_output(name_for_print + " '" + name + "' is defined " + str(count) + " times")
 
-        name_in_refs = name in refs;
-        name_in_pagerefs = name in pagerefs;
-        name_in_namerefs = name in namerefs;
+            name_in_refs = name in refs
+            name_in_pagerefs = name in pagerefs
+            name_in_namerefs = name in namerefs
 
-        if not name_in_refs and not name_in_pagerefs and not name_in_namerefs:
-            append_problem_to_output("label '" + name + "' is never referenced")
-        else:
-            if name_in_refs:
-                ref_count = refs[name]
+            if not name_in_refs and not name_in_pagerefs and not name_in_namerefs:
+                append_problem_to_output(name_for_print + " '" + name + "' is never referenced")
             else:
-                ref_count = 0
+                if name_in_refs:
+                    ref_count = refs[name]
+                else:
+                    ref_count = 0
 
-            if name_in_pagerefs:
-                pageref_count = pagerefs[name]
-            else:
-                pageref_count = 0
+                if name_in_pagerefs:
+                    pageref_count = pagerefs[name]
+                else:
+                    pageref_count = 0
 
-            if name_in_namerefs:
-                nameref_count = namerefs[name]
-            else:
-                nameref_count = 0
+                if name_in_namerefs:
+                    nameref_count = namerefs[name]
+                else:
+                    nameref_count = 0
 
-            append_to_output("label '" + name + "': " + str(ref_count) + " refs, " + str(pageref_count) + " pagerefs, " + str(nameref_count) + " namerefs")
+                append_to_output(name_for_print + " '" + name + "': " + str(ref_count) + " refs, " + str(pageref_count) + " pagerefs, " + str(nameref_count) + " namerefs")
 
-    undefined_refs = [name for name in refs.keys() if not name in labels]    # check for labels that are ref-referenced, but never defined
+
+    label_check("label", labels)
+    label_check("listing label", listings)
+
+
+
+
+    undefined_refs = [name for name in refs.keys() if not (name in labels or name in listings)]    # check for labels that are ref-referenced, but never defined
     for label in undefined_refs:
         append_problem_to_output("label '" + label + "' is referenced via ref but never defined")
 
-    undefined_pagerefs = [name for name in pagerefs.keys() if not name in labels]    # check for labels that are pageref-referenced, but never defined
+    undefined_pagerefs = [name for name in pagerefs.keys() if not (name in labels or name in listings)]    # check for labels that are pageref-referenced, but never defined
     for label in undefined_pagerefs:
         append_problem_to_output("label '" + label + "' is referenced via pageref but never defined")
 
-    undefined_namerefs = [name for name in namerefs.keys() if not name in labels]    # check for labels that are nameref-referenced, but never defined
+    undefined_namerefs = [name for name in namerefs.keys() if not (name in labels or name in listings)]    # check for labels that are nameref-referenced, but never defined
     for label in undefined_namerefs:
         append_problem_to_output("label '" + label + "' is referenced via nameref but never defined")
-
-
 
 
     print(output)
