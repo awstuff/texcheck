@@ -72,7 +72,8 @@ if __name__ == "__main__":
 
     print("Detecting listing labels..... done")
     listings_re = re.compile("\\\\begin\\{lstlisting\\}\\[language=[a-zA-Z]*,\\s*caption=\\{.*\\},\\s*label=(.*?)\\]")
-    listings = collections.Counter(listings_re.findall(file_contents))
+    listings_without_language_re = re.compile("\\\\begin\\{lstlisting\\}\\[caption=\\{.*\\},\\s*label=(.*?)\\]")
+    listings = collections.Counter(listings_re.findall(file_contents) + listings_without_language_re.findall(file_contents))
     listings = collections.OrderedDict(sorted(listings.items()))
 
     print("Detecting refs..... done")
@@ -89,6 +90,16 @@ if __name__ == "__main__":
     namerefs_re = re.compile("\\\\nameref\\{(.*?)\\}")
     namerefs = collections.Counter(namerefs_re.findall(file_contents))
     namerefs = collections.OrderedDict(sorted(namerefs.items()))
+
+    print("Detecting listingrefs..... done")
+    listingrefs_re = re.compile("\\\\listingref\\{(.*?)\\}")
+    listingrefs = collections.Counter(listingrefs_re.findall(file_contents))
+    listingrefs = collections.OrderedDict(sorted(listingrefs.items()))
+
+    print("Detecting hyperrefs..... done")
+    hyperrefs_re = re.compile("\\\\hyperref\\[(.*?)\\]")
+    hyperrefs = collections.Counter(hyperrefs_re.findall(file_contents))
+    hyperrefs = collections.OrderedDict(sorted(hyperrefs.items()))
 
 
 
@@ -117,8 +128,10 @@ if __name__ == "__main__":
             name_in_refs = name in refs
             name_in_pagerefs = name in pagerefs
             name_in_namerefs = name in namerefs
+            name_in_listingrefs = name in listingrefs
+            name_in_hyperrefs = name in hyperrefs
 
-            if not name_in_refs and not name_in_pagerefs and not name_in_namerefs:
+            if not name_in_refs and not name_in_pagerefs and not name_in_namerefs and not name_in_listingrefs and not name_in_hyperrefs:
                 append_problem_to_output(name_for_print + " '" + name + "' is never referenced")
             else:
                 if name_in_refs:
@@ -136,7 +149,17 @@ if __name__ == "__main__":
                 else:
                     nameref_count = 0
 
-                append_to_output(name_for_print + " '" + name + "': " + str(ref_count) + " refs, " + str(pageref_count) + " pagerefs, " + str(nameref_count) + " namerefs")
+                if name_in_listingrefs:
+                    listingref_count = listingrefs[name]
+                else:
+                    listingref_count = 0
+
+                if name_in_hyperrefs:
+                    hyperref_count = hyperrefs[name]
+                else:
+                    hyperref_count = 0
+
+                append_to_output(name_for_print + " '" + name + "': " + str(ref_count) + " r, " + str(pageref_count) + " pr, " + str(nameref_count) + " nr, " + str(listingref_count) + " lr, " + str(hyperref_count) + " hr")
 
 
     label_check("label", labels)
@@ -156,6 +179,15 @@ if __name__ == "__main__":
     undefined_namerefs = [name for name in namerefs.keys() if not (name in labels or name in listings)]    # check for labels that are nameref-referenced, but never defined
     for label in undefined_namerefs:
         append_problem_to_output("label '" + label + "' is referenced via nameref but never defined")
+
+    undefined_listingrefs = [name for name in listingrefs.keys() if not (name in labels or name in listings)]    # check for labels that are listingref-referenced, but never defined
+    for label in undefined_listingrefs:
+        append_problem_to_output("label '" + label + "' is referenced via listingref but never defined")
+
+    undefined_hyperrefs = [name for name in hyperrefs.keys() if not (name in labels or name in listings)]    # check for labels that are hyperref-referenced, but never defined
+    for label in undefined_hyperrefs:
+        append_problem_to_output("label '" + label + "' is referenced via hyperref but never defined")
+
 
 
     print(output)
