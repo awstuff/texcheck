@@ -67,16 +67,21 @@ if __name__ == "__main__":
 
     def find_by_regex_and_count_and_sort(regex, name):
         print("Detecting " + name + "..... done")
-        return count_and_sort(find_by_regex(regex))
+
+        if (isinstance(regex, list)):
+            found = []
+            for r in regex:
+                found = found + find_by_regex(r)
+        else:
+            found = find_by_regex(regex)
+
+        return count_and_sort(found)
 
 
     bibitems = find_by_regex_and_count_and_sort("\\\\bibitem(?:\\[.*?\\])?\\{(.*?)\\}", "bibitems")
     citations = find_by_regex_and_count_and_sort("\\\\cite\\{(.*?)\\}", "citations")
     labels = find_by_regex_and_count_and_sort("\\\\label\\{(.*?)\\}", "labels")
-
-    print("Detecting listing labels..... done")
-    listings = count_and_sort(find_by_regex("\\\\begin\\{lstlisting\\}\\[language=[a-zA-Z]*,\\s*caption=\\{.*\\},\\s*label=(.*?)\\]") + find_by_regex("\\\\begin\\{lstlisting\\}\\[caption=\\{.*\\},\\s*label=(.*?)\\]"))
-
+    listings = find_by_regex_and_count_and_sort(["\\\\begin\\{lstlisting\\}\\[language=[a-zA-Z]*,\\s*caption=\\{.*\\},\\s*label=(.*?)\\]", "\\\\begin\\{lstlisting\\}\\[caption=\\{.*\\},\\s*label=(.*?)\\]"], "listing labels")
     refs = find_by_regex_and_count_and_sort("\\\\ref\\{(.*?)\\}", "refs")
     pagerefs = find_by_regex_and_count_and_sort("\\\\pageref\\{(.*?)\\}", "pagerefs")
     namerefs = find_by_regex_and_count_and_sort("\\\\nameref\\{(.*?)\\}", "namerefs")
