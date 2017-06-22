@@ -55,51 +55,33 @@ if __name__ == "__main__":
     comments_re = re.compile("%(.*)")   # remove comments
     file_contents = comments_re.sub("", file_contents)
 
-    print("Detecting bibitems..... done")
-    bibitems_re = re.compile("\\\\bibitem(?:\\[.*?\\])?\\{(.*?)\\}")
-    bibitems = collections.Counter(bibitems_re.findall(file_contents))
-    bibitems = collections.OrderedDict(sorted(bibitems.items()))
 
-    print("Detecting citations..... done")
-    citations_re = re.compile("\\\\cite\\{(.*?)\\}")
-    citations = collections.Counter(citations_re.findall(file_contents))
-    citations = collections.OrderedDict(sorted(citations.items()))
 
-    print("Detecting labels..... done")
-    labels_re = re.compile("\\\\label\\{(.*?)\\}")
-    labels = collections.Counter(labels_re.findall(file_contents))
-    labels = collections.OrderedDict(sorted(labels.items()))
+
+    def find_by_regex(regex):
+        return re.compile(regex).findall(file_contents)
+
+
+    def count_and_sort(array):
+        return collections.OrderedDict(sorted(collections.Counter(array).items()))
+
+    def find_by_regex_and_count_and_sort(regex, name):
+        print("Detecting " + name + "..... done")
+        return count_and_sort(find_by_regex(regex))
+
+
+    bibitems = find_by_regex_and_count_and_sort("\\\\bibitem(?:\\[.*?\\])?\\{(.*?)\\}", "bibitems")
+    citations = find_by_regex_and_count_and_sort("\\\\cite\\{(.*?)\\}", "citations")
+    labels = find_by_regex_and_count_and_sort("\\\\label\\{(.*?)\\}", "labels")
 
     print("Detecting listing labels..... done")
-    listings_re = re.compile("\\\\begin\\{lstlisting\\}\\[language=[a-zA-Z]*,\\s*caption=\\{.*\\},\\s*label=(.*?)\\]")
-    listings_without_language_re = re.compile("\\\\begin\\{lstlisting\\}\\[caption=\\{.*\\},\\s*label=(.*?)\\]")
-    listings = collections.Counter(listings_re.findall(file_contents) + listings_without_language_re.findall(file_contents))
-    listings = collections.OrderedDict(sorted(listings.items()))
+    listings = count_and_sort(find_by_regex("\\\\begin\\{lstlisting\\}\\[language=[a-zA-Z]*,\\s*caption=\\{.*\\},\\s*label=(.*?)\\]") + find_by_regex("\\\\begin\\{lstlisting\\}\\[caption=\\{.*\\},\\s*label=(.*?)\\]"))
 
-    print("Detecting refs..... done")
-    refs_re = re.compile("\\\\ref\\{(.*?)\\}")
-    refs = collections.Counter(refs_re.findall(file_contents))
-    refs = collections.OrderedDict(sorted(refs.items()))
-
-    print("Detecting pagerefs..... done")
-    pagerefs_re = re.compile("\\\\pageref\\{(.*?)\\}")
-    pagerefs = collections.Counter(pagerefs_re.findall(file_contents))
-    pagerefs = collections.OrderedDict(sorted(pagerefs.items()))
-
-    print("Detecting namerefs..... done")
-    namerefs_re = re.compile("\\\\nameref\\{(.*?)\\}")
-    namerefs = collections.Counter(namerefs_re.findall(file_contents))
-    namerefs = collections.OrderedDict(sorted(namerefs.items()))
-
-    print("Detecting listingrefs..... done")
-    listingrefs_re = re.compile("\\\\listingref\\{(.*?)\\}")
-    listingrefs = collections.Counter(listingrefs_re.findall(file_contents))
-    listingrefs = collections.OrderedDict(sorted(listingrefs.items()))
-
-    print("Detecting hyperrefs..... done")
-    hyperrefs_re = re.compile("\\\\hyperref\\[(.*?)\\]")
-    hyperrefs = collections.Counter(hyperrefs_re.findall(file_contents))
-    hyperrefs = collections.OrderedDict(sorted(hyperrefs.items()))
+    refs = find_by_regex_and_count_and_sort("\\\\ref\\{(.*?)\\}", "refs")
+    pagerefs = find_by_regex_and_count_and_sort("\\\\pageref\\{(.*?)\\}", "pagerefs")
+    namerefs = find_by_regex_and_count_and_sort("\\\\nameref\\{(.*?)\\}", "namerefs")
+    listingrefs = find_by_regex_and_count_and_sort("\\\\listingref\\{(.*?)\\}", "listingrefs")
+    hyperrefs = find_by_regex_and_count_and_sort("\\\\hyperref\\[(.*?)\\]", "hyperrefs")
 
 
 
