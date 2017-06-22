@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2016 Adrian Wirth
+# Copyright (c) 2016-2017 Adrian Wirth
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -168,25 +168,19 @@ if __name__ == "__main__":
 
 
 
-    undefined_refs = [name for name in refs.keys() if not (name in labels or name in listings)]    # check for labels that are ref-referenced, but never defined
-    for label in undefined_refs:
-        append_problem_to_output("label '" + label + "' is referenced via ref but never defined")
+    def check_for_undefined_refs(ref_collection, ref_name):
+        undefined_refs = [name for name in ref_collection.keys() if not (name in labels or name in listings)]
 
-    undefined_pagerefs = [name for name in pagerefs.keys() if not (name in labels or name in listings)]    # check for labels that are pageref-referenced, but never defined
-    for label in undefined_pagerefs:
-        append_problem_to_output("label '" + label + "' is referenced via pageref but never defined")
+        for label in undefined_refs:
+            append_problem_to_output("label '" + label + "' is referenced via " + ref_name + " but never defined")
 
-    undefined_namerefs = [name for name in namerefs.keys() if not (name in labels or name in listings)]    # check for labels that are nameref-referenced, but never defined
-    for label in undefined_namerefs:
-        append_problem_to_output("label '" + label + "' is referenced via nameref but never defined")
 
-    undefined_listingrefs = [name for name in listingrefs.keys() if not (name in labels or name in listings)]    # check for labels that are listingref-referenced, but never defined
-    for label in undefined_listingrefs:
-        append_problem_to_output("label '" + label + "' is referenced via listingref but never defined")
+    check_for_undefined_refs(refs, "ref")
+    check_for_undefined_refs(pagerefs, "pageref")
+    check_for_undefined_refs(namerefs, "nameref")
+    check_for_undefined_refs(listingrefs, "listingref")
+    check_for_undefined_refs(hyperrefs, "hyperref")
 
-    undefined_hyperrefs = [name for name in hyperrefs.keys() if not (name in labels or name in listings)]    # check for labels that are hyperref-referenced, but never defined
-    for label in undefined_hyperrefs:
-        append_problem_to_output("label '" + label + "' is referenced via hyperref but never defined")
 
 
 
